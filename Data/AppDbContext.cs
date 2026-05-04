@@ -10,5 +10,7 @@ namespace TaskManagement.Data
             : base(options)
         {
         }
+
+        public DbSet<TaskItem> Tasks { get; set; }
     }
 }
