@@ -6,6 +6,8 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using TaskManagement.Data;
 using TaskManagement.Models;
+using TaskManagement.Repositories;
+using TaskManagement.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,6 +72,11 @@ builder.Services.AddAuthentication(options =>
             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
     };
 });
+
+
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<ITaskService, TaskService>();
+
 
 var app = builder.Build();
 

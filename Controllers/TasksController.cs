@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using TaskManagement.Data;
 using TaskManagement.DTOs;
-using TaskManagement.Models;
+using TaskManagement.Services;
 
 namespace TaskManagement.Controllers
 {
@@ -13,62 +11,39 @@ namespace TaskManagement.Controllers
     [Authorize]
     public class TasksController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly ITaskService _taskService;
 
-        public TasksController(AppDbContext context)
+        public TasksController(ITaskService taskService)
         {
-            _context = context;
+            _taskService = taskService;
         }
 
-        // Get the logged-in user's ID from their JWT token
         private string GetCurrentUserId()
         {
             return User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         }
 
-        // Map TaskItem entity to TaskResponseDto
-        private static TaskResponseDto MapToDto(TaskItem task) => new TaskResponseDto
-        {
-            Id = task.Id,
-            Title = task.Title,
-            Description = task.Description,
-            IsCompleted = task.IsCompleted,
-            CreatedAt = task.CreatedAt,
-            DueDate = task.DueDate,
-            Priority = task.Priority,
-            UserId = task.UserId
-        };
-
-        // GET /api/tasks
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var userId = GetCurrentUserId();
-
-            var tasks = await _context.Tasks
-                .Where(t => t.UserId == userId)
-                .Select(t => MapToDto(t))
-                .ToListAsync();
+            var tasks = await _taskService.GetAllTasksAsync(userId);
 
             return Ok(tasks);
         }
 
-        // GET /api/tasks/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var userId = GetCurrentUserId();
-
-            var task = await _context.Tasks
-                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+            var task = await _taskService.GetTaskByIdAsync(id, userId);
 
             if (task == null)
                 return NotFound(new { message = "Task not found." });
 
-            return Ok(MapToDto(task));
+            return Ok(task);
         }
 
-        // POST /api/tasks
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateTaskDto dto)
         {
@@ -76,25 +51,11 @@ namespace TaskManagement.Controllers
                 return BadRequest(ModelState);
 
             var userId = GetCurrentUserId();
+            var task = await _taskService.CreateTaskAsync(dto, userId);
 
-            var task = new TaskItem
-            {
-                Title = dto.Title,
-                Description = dto.Description,
-                DueDate = dto.DueDate,
-                Priority = dto.Priority,
-                UserId = userId,
-                CreatedAt = DateTime.UtcNow,
-                IsCompleted = false
-            };
-
-            _context.Tasks.Add(task);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetById), new { id = task.Id }, MapToDto(task));
+            return CreatedAtAction(nameof(GetById), new { id = task.Id }, task);
         }
 
-        // PUT /api/tasks/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateTaskDto dto)
         {
@@ -102,39 +63,22 @@ namespace TaskManagement.Controllers
                 return BadRequest(ModelState);
 
             var userId = GetCurrentUserId();
+            var updated = await _taskService.UpdateTaskAsync(id, dto, userId);
 
-            var task = await _context.Tasks
-                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
-
-            if (task == null)
+            if (!updated)
                 return NotFound(new { message = "Task not found." });
 
-            if (dto.Title != null) task.Title = dto.Title;
-            if (dto.Description != null) task.Description = dto.Description;
-            if (dto.IsCompleted.HasValue) task.IsCompleted = dto.IsCompleted.Value;
-            if (dto.DueDate.HasValue) task.DueDate = dto.DueDate;
-            if (dto.Priority != null) task.Priority = dto.Priority;
-
-            await _context.SaveChangesAsync();
-
-            return Ok(MapToDto(task));
+            return Ok(new { message = "Task updated successfully." });
         }
 
-        // DELETE /api/tasks/{id}
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            
+            var deleted = await _taskService.DeleteAnyTaskAsync(id);
 
-            var task = await _context.Tasks
-     .FirstOrDefaultAsync(t => t.Id == id);
-
-            if (task == null)
+            if (!deleted)
                 return NotFound(new { message = "Task not found." });
-
-            _context.Tasks.Remove(task);
-            await _context.SaveChangesAsync();
 
             return Ok(new { message = "Task deleted successfully." });
         }
