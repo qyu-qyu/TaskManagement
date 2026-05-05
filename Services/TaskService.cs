@@ -38,6 +38,7 @@ namespace TaskManagement.Services
 
             return new TaskResponseDto
             {
+                UserId = task.UserId,
                 Id = task.Id,
                 Title = task.Title,
                 Description = task.Description,
@@ -66,6 +67,7 @@ namespace TaskManagement.Services
 
             return new TaskResponseDto
             {
+                UserId = task.UserId,
                 Id = task.Id,
                 Title = task.Title,
                 Description = task.Description,
@@ -83,11 +85,11 @@ namespace TaskManagement.Services
             if (task == null)
                 return false;
 
-            task.Title = dto.Title;
-            task.Description = dto.Description;
-            task.IsCompleted = (bool)dto.IsCompleted;
-            task.DueDate = dto.DueDate;
-            task.Priority = dto.Priority;
+            if (dto.Title != null) task.Title = dto.Title;
+            if (dto.Description != null) task.Description = dto.Description;
+            if (dto.IsCompleted.HasValue) task.IsCompleted = dto.IsCompleted.Value;
+            if (dto.DueDate.HasValue) task.DueDate = dto.DueDate;
+            if (dto.Priority != null) task.Priority = dto.Priority;
 
             _taskRepository.Update(task);
             await _taskRepository.SaveChangesAsync();
