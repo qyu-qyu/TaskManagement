@@ -49,6 +49,8 @@ namespace TaskManagement.Controllers
                 return BadRequest(result.Errors);
             }
 
+            await _userManager.AddToRoleAsync(user, "User");
+
             return Ok("User registered successfully.");
         }
 

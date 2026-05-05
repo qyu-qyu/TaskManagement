@@ -121,13 +121,14 @@ namespace TaskManagement.Controllers
         }
 
         // DELETE /api/tasks/{id}
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var userId = GetCurrentUserId();
+            
 
             var task = await _context.Tasks
-                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+     .FirstOrDefaultAsync(t => t.Id == id);
 
             if (task == null)
                 return NotFound(new { message = "Task not found." });
