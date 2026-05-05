@@ -23,7 +23,7 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Enter: Bearer {your token here}"
+        Description = "Enterr: Bearer {your token here}"
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -60,10 +60,10 @@ builder.Services.AddAuthentication(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
+        ValidateIssuer = true,   //who created the token
+        ValidateAudience = true,   //who the token is for
+        ValidateLifetime = true,    //is token expired
+        ValidateIssuerSigningKey = true,   //is signature correct
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(
