@@ -16,6 +16,8 @@ namespace TaskManagement.Repositories
         public async Task<List<TaskItem>> GetAllByUserIdAsync(string userId)
         {
             return await _context.Tasks
+                .Include(t => t.Status)
+                .Include(t => t.Priority)
                 .Where(t => t.UserId == userId)
                 .ToListAsync();
         }
@@ -23,12 +25,16 @@ namespace TaskManagement.Repositories
         public async Task<TaskItem?> GetByIdAndUserIdAsync(int id, string userId)
         {
             return await _context.Tasks
+                .Include(t => t.Status)
+                .Include(t => t.Priority)
                 .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
         }
 
         public async Task<TaskItem?> GetByIdAsync(int id)
         {
             return await _context.Tasks
+                .Include(t => t.Status)
+                .Include(t => t.Priority)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 

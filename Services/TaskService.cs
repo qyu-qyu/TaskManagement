@@ -22,10 +22,13 @@ namespace TaskManagement.Services
                 Id = t.Id,
                 Title = t.Title,
                 Description = t.Description,
-                IsCompleted = t.IsCompleted,
                 CreatedAt = t.CreatedAt,
                 DueDate = t.DueDate,
-                Priority = t.Priority
+                StatusId = t.StatusId,
+                StatusName = t.Status?.Name,
+                PriorityId = t.PriorityId,
+                PriorityName = t.Priority?.Name,
+                UserId = t.UserId
             }).ToList();
         }
 
@@ -38,14 +41,16 @@ namespace TaskManagement.Services
 
             return new TaskResponseDto
             {
-                UserId = task.UserId,
                 Id = task.Id,
                 Title = task.Title,
                 Description = task.Description,
-                IsCompleted = task.IsCompleted,
                 CreatedAt = task.CreatedAt,
                 DueDate = task.DueDate,
-                Priority = task.Priority
+                StatusId = task.StatusId,
+                StatusName = task.Status?.Name,
+                PriorityId = task.PriorityId,
+                PriorityName = task.Priority?.Name,
+                UserId = task.UserId
             };
         }
 
@@ -56,9 +61,9 @@ namespace TaskManagement.Services
                 Title = dto.Title,
                 Description = dto.Description,
                 DueDate = dto.DueDate,
-                Priority = dto.Priority,
-                IsCompleted = false,
-                CreatedAt = DateTime.Now,
+                StatusId = dto.StatusId,
+                PriorityId = dto.PriorityId,
+                CreatedAt = DateTime.UtcNow,
                 UserId = userId
             };
 
@@ -67,14 +72,16 @@ namespace TaskManagement.Services
 
             return new TaskResponseDto
             {
-                UserId = task.UserId,
                 Id = task.Id,
                 Title = task.Title,
                 Description = task.Description,
-                IsCompleted = task.IsCompleted,
                 CreatedAt = task.CreatedAt,
                 DueDate = task.DueDate,
-                Priority = task.Priority
+                StatusId = task.StatusId,
+                StatusName = task.Status?.Name,
+                PriorityId = task.PriorityId,
+                PriorityName = task.Priority?.Name,
+                UserId = task.UserId
             };
         }
 
@@ -87,9 +94,9 @@ namespace TaskManagement.Services
 
             if (dto.Title != null) task.Title = dto.Title;
             if (dto.Description != null) task.Description = dto.Description;
-            if (dto.IsCompleted.HasValue) task.IsCompleted = dto.IsCompleted.Value;
             if (dto.DueDate.HasValue) task.DueDate = dto.DueDate;
-            if (dto.Priority != null) task.Priority = dto.Priority;
+            if (dto.StatusId.HasValue) task.StatusId = dto.StatusId.Value;
+            if (dto.PriorityId.HasValue) task.PriorityId = dto.PriorityId.Value;
 
             _taskRepository.Update(task);
             await _taskRepository.SaveChangesAsync();

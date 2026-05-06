@@ -77,13 +77,23 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 
+builder.Services.AddScoped<IStatusRepository, StatusRepository>();
+builder.Services.AddScoped<IStatusService, StatusService>();
+
+builder.Services.AddScoped<IPriorityRepository, PriorityRepository>();
+builder.Services.AddScoped<IPriorityService, PriorityService>();
+
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+
     await RoleSeeder.SeedRolesAsync(services);
+
+    var context = services.GetRequiredService<AppDbContext>();
+    await TaskLookupSeeder.SeedAsync(context);
 }
 
 // Configure the HTTP request pipeline.

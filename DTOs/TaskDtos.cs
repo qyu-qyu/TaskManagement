@@ -14,9 +14,10 @@ namespace TaskManagement.DTOs
         public DateTime? DueDate { get; set; }
 
         [Required]
-        [RegularExpression("Low|Medium|High",
-            ErrorMessage = "Priority must be Low, Medium, or High")]
-        public string Priority { get; set; } = "Medium";
+        public int StatusId { get; set; }
+
+        [Required]
+        public int PriorityId { get; set; }
     }
 
     public class UpdateTaskDto
@@ -27,24 +28,33 @@ namespace TaskManagement.DTOs
         [MaxLength(500)]
         public string? Description { get; set; }
 
-        public bool? IsCompleted { get; set; }
-
         public DateTime? DueDate { get; set; }
 
-        [RegularExpression("Low|Medium|High",
-            ErrorMessage = "Priority must be Low, Medium, or High")]
-        public string? Priority { get; set; }
+        public int? StatusId { get; set; }
+
+        public int? PriorityId { get; set; }
     }
 
     public class TaskResponseDto
     {
         public int Id { get; set; }
+
         public string Title { get; set; } = string.Empty;
+
         public string? Description { get; set; }
-        public bool IsCompleted { get; set; }
+
         public DateTime CreatedAt { get; set; }
+
         public DateTime? DueDate { get; set; }
-        public string Priority { get; set; } = string.Empty;
+
+        public int StatusId { get; set; }
+
+        public string? StatusName { get; set; }
+
+        public int PriorityId { get; set; }
+
+        public string? PriorityName { get; set; }
+
         public string UserId { get; set; } = string.Empty;
     }
 }
