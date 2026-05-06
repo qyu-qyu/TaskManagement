@@ -75,4 +75,21 @@ namespace TaskManagement.DTOs
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
     }
+    // DTO for creating a comment
+    public class CreateCommentDto
+    {
+        [Required]
+        [MaxLength(1000)]
+        public string Content { get; set; } = string.Empty;
+    }
+
+    // DTO for comment response
+    public class CommentResponseDto
+    {
+        public int Id { get; set; }
+        public string Content { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public int TaskItemId { get; set; }
+    }
 }

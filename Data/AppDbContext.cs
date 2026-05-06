@@ -12,5 +12,17 @@ namespace TaskManagement.Data
 
         public DbSet<TaskItem> Tasks { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<TaskComment> TaskComments { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<TaskComment>()
+                .HasOne(c => c.Task)
+                .WithMany()
+                .HasForeignKey(c => c.TaskItemId)
+                .OnDelete(DeleteBehavior.Restrict); // prevent cascade conflict
+        }
     }
 }
