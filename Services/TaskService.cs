@@ -16,7 +16,6 @@ namespace TaskManagement.Services
         public async Task<List<TaskResponseDto>> GetAllTasksAsync(string userId)
         {
             var tasks = await _taskRepository.GetAllByUserIdAsync(userId);
-
             return tasks.Select(t => new TaskResponseDto
             {
                 Id = t.Id,
@@ -25,27 +24,29 @@ namespace TaskManagement.Services
                 IsCompleted = t.IsCompleted,
                 CreatedAt = t.CreatedAt,
                 DueDate = t.DueDate,
-                Priority = t.Priority
+                Priority = t.Priority,
+                CreatedByUserId = t.CreatedByUserId,
+                AssignedToUserId = t.AssignedToUserId
             }).ToList();
         }
 
         public async Task<TaskResponseDto?> GetTaskByIdAsync(int id, string userId)
         {
             var task = await _taskRepository.GetByIdAndUserIdAsync(id, userId);
-
             if (task == null)
                 return null;
 
             return new TaskResponseDto
             {
-                UserId = task.UserId,
                 Id = task.Id,
                 Title = task.Title,
                 Description = task.Description,
                 IsCompleted = task.IsCompleted,
                 CreatedAt = task.CreatedAt,
                 DueDate = task.DueDate,
-                Priority = task.Priority
+                Priority = task.Priority,
+                CreatedByUserId = task.CreatedByUserId,
+                AssignedToUserId = task.AssignedToUserId
             };
         }
 
@@ -59,7 +60,8 @@ namespace TaskManagement.Services
                 Priority = dto.Priority,
                 IsCompleted = false,
                 CreatedAt = DateTime.Now,
-                UserId = userId
+                CreatedByUserId = userId,
+                AssignedToUserId = dto.AssignedToUserId
             };
 
             await _taskRepository.AddAsync(task);
@@ -67,21 +69,21 @@ namespace TaskManagement.Services
 
             return new TaskResponseDto
             {
-                UserId = task.UserId,
                 Id = task.Id,
                 Title = task.Title,
                 Description = task.Description,
                 IsCompleted = task.IsCompleted,
                 CreatedAt = task.CreatedAt,
                 DueDate = task.DueDate,
-                Priority = task.Priority
+                Priority = task.Priority,
+                CreatedByUserId = task.CreatedByUserId,
+                AssignedToUserId = task.AssignedToUserId
             };
         }
 
         public async Task<bool> UpdateTaskAsync(int id, UpdateTaskDto dto, string userId)
         {
             var task = await _taskRepository.GetByIdAndUserIdAsync(id, userId);
-
             if (task == null)
                 return false;
 
@@ -90,36 +92,32 @@ namespace TaskManagement.Services
             if (dto.IsCompleted.HasValue) task.IsCompleted = dto.IsCompleted.Value;
             if (dto.DueDate.HasValue) task.DueDate = dto.DueDate;
             if (dto.Priority != null) task.Priority = dto.Priority;
+            if (dto.AssignedToUserId != null) task.AssignedToUserId = dto.AssignedToUserId;
 
             _taskRepository.Update(task);
             await _taskRepository.SaveChangesAsync();
-
             return true;
         }
 
         public async Task<bool> DeleteOwnTaskAsync(int id, string userId)
         {
             var task = await _taskRepository.GetByIdAndUserIdAsync(id, userId);
-
             if (task == null)
                 return false;
 
             _taskRepository.Delete(task);
             await _taskRepository.SaveChangesAsync();
-
             return true;
         }
 
         public async Task<bool> DeleteAnyTaskAsync(int id)
         {
             var task = await _taskRepository.GetByIdAsync(id);
-
             if (task == null)
                 return false;
 
             _taskRepository.Delete(task);
             await _taskRepository.SaveChangesAsync();
-
             return true;
         }
     }
