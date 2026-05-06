@@ -16,14 +16,15 @@ namespace TaskManagement.Repositories
         public async Task<List<TaskItem>> GetAllByUserIdAsync(string userId)
         {
             return await _context.Tasks
-                .Where(t => t.UserId == userId)
+                .Where(t => t.CreatedByUserId == userId || t.AssignedToUserId == userId)
                 .ToListAsync();
         }
 
         public async Task<TaskItem?> GetByIdAndUserIdAsync(int id, string userId)
         {
             return await _context.Tasks
-                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+                .FirstOrDefaultAsync(t => t.Id == id &&
+                    (t.CreatedByUserId == userId || t.AssignedToUserId == userId));
         }
 
         public async Task<TaskItem?> GetByIdAsync(int id)

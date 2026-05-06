@@ -23,10 +23,17 @@ namespace TaskManagement.Models
         [Required]
         public string Priority { get; set; } = "Medium";
 
+        // Who created the task
         [Required]
-        public string UserId { get; set; } = string.Empty;
+        public string CreatedByUserId { get; set; } = string.Empty;
 
-        [ForeignKey("UserId")]
-        public ApplicationUser? User { get; set; }
+        [ForeignKey("CreatedByUserId")]
+        public ApplicationUser? CreatedByUser { get; set; }
+
+        // Who the task is assigned to (optional)
+        public string? AssignedToUserId { get; set; }
+
+        [ForeignKey("AssignedToUserId")]
+        public ApplicationUser? AssignedToUser { get; set; }
     }
 }

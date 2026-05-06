@@ -17,6 +17,9 @@ namespace TaskManagement.DTOs
         [RegularExpression("Low|Medium|High",
             ErrorMessage = "Priority must be Low, Medium, or High")]
         public string Priority { get; set; } = "Medium";
+
+        // Optional: assign task to another user
+        public string? AssignedToUserId { get; set; }
     }
 
     public class UpdateTaskDto
@@ -34,6 +37,9 @@ namespace TaskManagement.DTOs
         [RegularExpression("Low|Medium|High",
             ErrorMessage = "Priority must be Low, Medium, or High")]
         public string? Priority { get; set; }
+
+        // Optional: reassign task to another user
+        public string? AssignedToUserId { get; set; }
     }
 
     public class TaskResponseDto
@@ -45,6 +51,7 @@ namespace TaskManagement.DTOs
         public DateTime CreatedAt { get; set; }
         public DateTime? DueDate { get; set; }
         public string Priority { get; set; } = string.Empty;
-        public string UserId { get; set; } = string.Empty;
+        public string CreatedByUserId { get; set; } = string.Empty;
+        public string? AssignedToUserId { get; set; }
     }
 }
