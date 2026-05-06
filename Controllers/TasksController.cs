@@ -35,16 +35,19 @@ namespace TaskManagement.Controllers
             DueDate = task.DueDate,
             Priority = task.Priority,
             CreatedByUserId = task.CreatedByUserId,
-            AssignedToUserId = task.AssignedToUserId
+            AssignedToUserId = task.AssignedToUserId,
+            CategoryId = task.CategoryId,
+            CategoryName = task.Category?.Name
         };
 
-        // GET /api/tasks — get tasks created by OR assigned to the logged-in user
+        // GET /api/tasks
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var userId = GetCurrentUserId();
 
             var tasks = await _context.Tasks
+                .Include(t => t.Category)
                 .Where(t => t.CreatedByUserId == userId || t.AssignedToUserId == userId)
                 .Select(t => MapToDto(t))
                 .ToListAsync();
@@ -59,6 +62,7 @@ namespace TaskManagement.Controllers
             var userId = GetCurrentUserId();
 
             var task = await _context.Tasks
+                .Include(t => t.Category)
                 .FirstOrDefaultAsync(t => t.Id == id &&
                     (t.CreatedByUserId == userId || t.AssignedToUserId == userId));
 
@@ -85,12 +89,16 @@ namespace TaskManagement.Controllers
                 Priority = dto.Priority,
                 CreatedByUserId = userId,
                 AssignedToUserId = dto.AssignedToUserId,
+                CategoryId = dto.CategoryId,
                 CreatedAt = DateTime.UtcNow,
                 IsCompleted = false
             };
 
             _context.Tasks.Add(task);
             await _context.SaveChangesAsync();
+
+            // Reload with category
+            await _context.Entry(task).Reference(t => t.Category).LoadAsync();
 
             return CreatedAtAction(nameof(GetById), new { id = task.Id }, MapToDto(task));
         }
@@ -105,6 +113,7 @@ namespace TaskManagement.Controllers
             var userId = GetCurrentUserId();
 
             var task = await _context.Tasks
+                .Include(t => t.Category)
                 .FirstOrDefaultAsync(t => t.Id == id && t.CreatedByUserId == userId);
 
             if (task == null)
@@ -116,6 +125,7 @@ namespace TaskManagement.Controllers
             if (dto.DueDate.HasValue) task.DueDate = dto.DueDate;
             if (dto.Priority != null) task.Priority = dto.Priority;
             if (dto.AssignedToUserId != null) task.AssignedToUserId = dto.AssignedToUserId;
+            if (dto.CategoryId.HasValue) task.CategoryId = dto.CategoryId;
 
             await _context.SaveChangesAsync();
 

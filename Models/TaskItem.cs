@@ -35,5 +35,11 @@ namespace TaskManagement.Models
 
         [ForeignKey("AssignedToUserId")]
         public ApplicationUser? AssignedToUser { get; set; }
+
+        // Category (optional)
+        public int? CategoryId { get; set; }
+
+        [ForeignKey("CategoryId")]
+        public Category? Category { get; set; }
     }
 }

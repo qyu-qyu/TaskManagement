@@ -18,8 +18,10 @@ namespace TaskManagement.DTOs
             ErrorMessage = "Priority must be Low, Medium, or High")]
         public string Priority { get; set; } = "Medium";
 
-        // Optional: assign task to another user
         public string? AssignedToUserId { get; set; }
+
+        // Optional: assign a category
+        public int? CategoryId { get; set; }
     }
 
     public class UpdateTaskDto
@@ -38,8 +40,10 @@ namespace TaskManagement.DTOs
             ErrorMessage = "Priority must be Low, Medium, or High")]
         public string? Priority { get; set; }
 
-        // Optional: reassign task to another user
         public string? AssignedToUserId { get; set; }
+
+        // Optional: change category
+        public int? CategoryId { get; set; }
     }
 
     public class TaskResponseDto
@@ -53,5 +57,22 @@ namespace TaskManagement.DTOs
         public string Priority { get; set; } = string.Empty;
         public string CreatedByUserId { get; set; } = string.Empty;
         public string? AssignedToUserId { get; set; }
+        public int? CategoryId { get; set; }
+        public string? CategoryName { get; set; }
+    }
+
+    // DTO for creating a category
+    public class CreateCategoryDto
+    {
+        [Required]
+        [MaxLength(50)]
+        public string Name { get; set; } = string.Empty;
+    }
+
+    // DTO for category response
+    public class CategoryResponseDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 }
