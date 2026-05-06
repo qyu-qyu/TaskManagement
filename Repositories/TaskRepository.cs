@@ -13,12 +13,28 @@ namespace TaskManagement.Repositories
             _context = context;
         }
 
-        public async Task<List<TaskItem>> GetAllByUserIdAsync(string userId)
+        public async Task<List<TaskItem>> GetFilteredTasksAsync(
+            string userId,
+            int? statusId,
+            int? priorityId,
+            int pageNumber,
+            int pageSize)
         {
-            return await _context.Tasks
+            var query = _context.Tasks
                 .Include(t => t.Status)
                 .Include(t => t.Priority)
                 .Where(t => t.UserId == userId)
+                .AsQueryable();
+
+            if (statusId.HasValue)
+                query = query.Where(t => t.StatusId == statusId.Value);
+
+            if (priorityId.HasValue)
+                query = query.Where(t => t.PriorityId == priorityId.Value);
+
+            return await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
         }
 
@@ -36,6 +52,19 @@ namespace TaskManagement.Repositories
                 .Include(t => t.Status)
                 .Include(t => t.Priority)
                 .FirstOrDefaultAsync(t => t.Id == id);
+        }
+
+        public async Task<List<TaskItem>> GetOverdueTasksAsync(string userId)
+        {
+            return await _context.Tasks
+                .Include(t => t.Status)
+                .Include(t => t.Priority)
+                .Where(t =>
+                    t.UserId == userId &&
+                    t.DueDate.HasValue &&
+                    t.DueDate.Value < DateTime.UtcNow &&
+                    t.Status.Name != "Completed")
+                .ToListAsync();
         }
 
         public async Task AddAsync(TaskItem task)
@@ -57,5 +86,7 @@ namespace TaskManagement.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+       
     }
 }

@@ -24,10 +24,20 @@ namespace TaskManagement.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(
+            int? statusId,
+            int? priorityId,
+            int pageNumber = 1,
+            int pageSize = 10)
         {
             var userId = GetCurrentUserId();
-            var tasks = await _taskService.GetAllTasksAsync(userId);
+
+            var tasks = await _taskService.GetFilteredTasksAsync(
+                userId,
+                statusId,
+                priorityId,
+                pageNumber,
+                pageSize);
 
             return Ok(tasks);
         }
@@ -81,6 +91,17 @@ namespace TaskManagement.Controllers
                 return NotFound(new { message = "Task not found." });
 
             return Ok(new { message = "Task deleted successfully." });
+        }
+
+
+        [HttpGet("overdue")]
+        public async Task<IActionResult> GetOverdueTasks()
+        {
+            var userId = GetCurrentUserId();
+
+            var tasks = await _taskService.GetOverdueTasksAsync(userId);
+
+            return Ok(tasks);
         }
     }
 }

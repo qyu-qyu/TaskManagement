@@ -13,23 +13,21 @@ namespace TaskManagement.Services
             _taskRepository = taskRepository;
         }
 
-        public async Task<List<TaskResponseDto>> GetAllTasksAsync(string userId)
+        public async Task<List<TaskResponseDto>> GetFilteredTasksAsync(
+            string userId,
+            int? statusId,
+            int? priorityId,
+            int pageNumber,
+            int pageSize)
         {
-            var tasks = await _taskRepository.GetAllByUserIdAsync(userId);
+            var tasks = await _taskRepository.GetFilteredTasksAsync(
+                userId,
+                statusId,
+                priorityId,
+                pageNumber,
+                pageSize);
 
-            return tasks.Select(t => new TaskResponseDto
-            {
-                Id = t.Id,
-                Title = t.Title,
-                Description = t.Description,
-                CreatedAt = t.CreatedAt,
-                DueDate = t.DueDate,
-                StatusId = t.StatusId,
-                StatusName = t.Status?.Name,
-                PriorityId = t.PriorityId,
-                PriorityName = t.Priority?.Name,
-                UserId = t.UserId
-            }).ToList();
+            return tasks.Select(t => MapToDto(t)).ToList();
         }
 
         public async Task<TaskResponseDto?> GetTaskByIdAsync(int id, string userId)
@@ -39,19 +37,7 @@ namespace TaskManagement.Services
             if (task == null)
                 return null;
 
-            return new TaskResponseDto
-            {
-                Id = task.Id,
-                Title = task.Title,
-                Description = task.Description,
-                CreatedAt = task.CreatedAt,
-                DueDate = task.DueDate,
-                StatusId = task.StatusId,
-                StatusName = task.Status?.Name,
-                PriorityId = task.PriorityId,
-                PriorityName = task.Priority?.Name,
-                UserId = task.UserId
-            };
+            return MapToDto(task);
         }
 
         public async Task<TaskResponseDto> CreateTaskAsync(CreateTaskDto dto, string userId)
@@ -70,19 +56,7 @@ namespace TaskManagement.Services
             await _taskRepository.AddAsync(task);
             await _taskRepository.SaveChangesAsync();
 
-            return new TaskResponseDto
-            {
-                Id = task.Id,
-                Title = task.Title,
-                Description = task.Description,
-                CreatedAt = task.CreatedAt,
-                DueDate = task.DueDate,
-                StatusId = task.StatusId,
-                StatusName = task.Status?.Name,
-                PriorityId = task.PriorityId,
-                PriorityName = task.Priority?.Name,
-                UserId = task.UserId
-            };
+            return MapToDto(task);
         }
 
         public async Task<bool> UpdateTaskAsync(int id, UpdateTaskDto dto, string userId)
@@ -128,6 +102,30 @@ namespace TaskManagement.Services
             await _taskRepository.SaveChangesAsync();
 
             return true;
+        }
+
+        private static TaskResponseDto MapToDto(TaskItem task)
+        {
+            return new TaskResponseDto
+            {
+                Id = task.Id,
+                Title = task.Title,
+                Description = task.Description,
+                CreatedAt = task.CreatedAt,
+                DueDate = task.DueDate,
+                StatusId = task.StatusId,
+                StatusName = task.Status?.Name,
+                PriorityId = task.PriorityId,
+                PriorityName = task.Priority?.Name,
+                UserId = task.UserId
+            };
+        }
+
+        public async Task<List<TaskResponseDto>> GetOverdueTasksAsync(string userId)
+        {
+            var tasks = await _taskRepository.GetOverdueTasksAsync(userId);
+
+            return tasks.Select(t => MapToDto(t)).ToList();
         }
     }
 }
