@@ -14,5 +14,6 @@ namespace TaskManagement.Data
         public DbSet<TaskItem> Tasks { get; set; }
         public DbSet<Status> Statuses { get; set; }
         public DbSet<Priority> Priorities { get; set; }
+        public DbSet<Category> Categories { get; set; }
     }
 }
