@@ -83,6 +83,12 @@ builder.Services.AddScoped<IStatusService, StatusService>();
 builder.Services.AddScoped<IPriorityRepository, PriorityRepository>();
 builder.Services.AddScoped<IPriorityService, PriorityService>();
 
+builder.Services.AddScoped<IPriorityRepository, PriorityRepository>();
+builder.Services.AddScoped<IPriorityService, PriorityService>();
+
+
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 var app = builder.Build();
 
