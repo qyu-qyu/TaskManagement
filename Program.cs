@@ -90,6 +90,9 @@ builder.Services.AddScoped<IPriorityService, PriorityService>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<ICommentService, CommentService>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
