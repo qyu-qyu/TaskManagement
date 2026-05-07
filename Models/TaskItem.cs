@@ -20,18 +20,30 @@ namespace TaskManagement.Models
 
         public DateTime? DueDate { get; set; }
 
-
+        // Who created the task
         [Required]
-        public string UserId { get; set; } = string.Empty;
+        public string CreatedByUserId { get; set; } = string.Empty;
 
-        [ForeignKey("UserId")]
-        public ApplicationUser? User { get; set; }
+        [ForeignKey("CreatedByUserId")]
+        public ApplicationUser? CreatedByUser { get; set; }
 
+        // Who the task is assigned to (optional)
+        public string? AssignedToUserId { get; set; }
 
+        [ForeignKey("AssignedToUserId")]
+        public ApplicationUser? AssignedToUser { get; set; }
+
+        // Status and Priority (relational - Member 1's work)
         public int StatusId { get; set; }
         public Status Status { get; set; } = null!;
 
         public int PriorityId { get; set; }
         public Priority Priority { get; set; } = null!;
+
+        // Category (our addition)
+        public int? CategoryId { get; set; }
+
+        [ForeignKey("CategoryId")]
+        public Category? Category { get; set; }
     }
 }

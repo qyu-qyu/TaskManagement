@@ -23,7 +23,8 @@ namespace TaskManagement.Repositories
             var query = _context.Tasks
                 .Include(t => t.Status)
                 .Include(t => t.Priority)
-                .Where(t => t.UserId == userId)
+                .Include(t => t.Category)
+                .Where(t => t.CreatedByUserId == userId || t.AssignedToUserId == userId)
                 .AsQueryable();
 
             if (statusId.HasValue)
@@ -43,7 +44,9 @@ namespace TaskManagement.Repositories
             return await _context.Tasks
                 .Include(t => t.Status)
                 .Include(t => t.Priority)
-                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+                .Include(t => t.Category)
+                .FirstOrDefaultAsync(t => t.Id == id &&
+                    (t.CreatedByUserId == userId || t.AssignedToUserId == userId));
         }
 
         public async Task<TaskItem?> GetByIdAsync(int id)
@@ -51,6 +54,7 @@ namespace TaskManagement.Repositories
             return await _context.Tasks
                 .Include(t => t.Status)
                 .Include(t => t.Priority)
+                .Include(t => t.Category)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 
@@ -59,8 +63,9 @@ namespace TaskManagement.Repositories
             return await _context.Tasks
                 .Include(t => t.Status)
                 .Include(t => t.Priority)
+                .Include(t => t.Category)
                 .Where(t =>
-                    t.UserId == userId &&
+                    (t.CreatedByUserId == userId || t.AssignedToUserId == userId) &&
                     t.DueDate.HasValue &&
                     t.DueDate.Value < DateTime.UtcNow &&
                     t.Status.Name != "Completed")
@@ -86,7 +91,5 @@ namespace TaskManagement.Repositories
         {
             await _context.SaveChangesAsync();
         }
-
-       
     }
 }
