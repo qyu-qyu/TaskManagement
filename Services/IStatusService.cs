@@ -1,13 +1,17 @@
-﻿using TaskManagement.Models;
+﻿using TaskManagement.DTOs;
 
 namespace TaskManagement.Services
 {
     public interface IStatusService
     {
-        Task<List<Status>> GetAllAsync();
-        Task<Status?> GetByIdAsync(int id);
-        Task<Status> CreateAsync(Status status);
-        Task<bool> UpdateAsync(int id, Status status);
+        Task<List<StatusResponseDto>> GetAllAsync();
+
+        Task<StatusResponseDto?> GetByIdAsync(int id);
+
+        Task<StatusResponseDto> CreateAsync(StatusDto dto);
+
+        Task<bool> UpdateAsync(int id, StatusDto dto);
+
         Task<bool> DeleteAsync(int id);
     }
 }

@@ -6,6 +6,7 @@ namespace TaskManagement.Services
     {
         Task<List<CommentResponseDto>> GetByTaskIdAsync(int taskId);
         Task<CommentResponseDto> AddAsync(int taskId, string userId, CreateCommentDto dto);
-        Task<bool> DeleteAsync(int commentId, string userId);
+        //Task<bool> DeleteAsync(int commentId, string userId);
+        Task<bool> DeleteAsync(int commentId, string userId, bool isAdmin);
     }
 }

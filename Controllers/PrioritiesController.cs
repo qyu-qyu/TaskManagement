@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TaskManagement.Models;
+using TaskManagement.DTOs;
 using TaskManagement.Services;
 
 namespace TaskManagement.Controllers
@@ -35,19 +35,25 @@ namespace TaskManagement.Controllers
             return Ok(priority);
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> Create(Priority priority)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create([FromBody] PriorityDto dto)
         {
-            var createdPriority = await _priorityService.CreateAsync(priority);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var createdPriority = await _priorityService.CreateAsync(dto);
             return Ok(createdPriority);
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Priority priority)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Update(int id, [FromBody] PriorityDto dto)
         {
-            var updated = await _priorityService.UpdateAsync(id, priority);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var updated = await _priorityService.UpdateAsync(id, dto);
 
             if (!updated)
                 return NotFound(new { message = "Priority not found." });
@@ -55,8 +61,8 @@ namespace TaskManagement.Controllers
             return Ok(new { message = "Priority updated successfully." });
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _priorityService.DeleteAsync(id);

@@ -81,18 +81,28 @@ namespace TaskManagement.Controllers
             return Ok(new { message = "Task updated successfully." });
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var deleted = await _taskService.DeleteAnyTaskAsync(id);
+            var userId = GetCurrentUserId();
+
+            if (User.IsInRole("Admin"))
+            {
+                var adminDeleted = await _taskService.DeleteAnyTaskAsync(id);
+
+                if (!adminDeleted)
+                    return NotFound(new { message = "Task not found." });
+
+                return Ok(new { message = "Task deleted successfully." });
+            }
+
+            var deleted = await _taskService.DeleteOwnTaskAsync(id, userId);
 
             if (!deleted)
-                return NotFound(new { message = "Task not found." });
+                return NotFound(new { message = "Task not found or access denied." });
 
             return Ok(new { message = "Task deleted successfully." });
         }
-
 
         [HttpGet("overdue")]
         public async Task<IActionResult> GetOverdueTasks()

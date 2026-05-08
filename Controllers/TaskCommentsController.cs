@@ -39,7 +39,9 @@ namespace TaskManagement.Controllers
                 return BadRequest(ModelState);
 
             var userId = GetCurrentUserId();
+
             var comment = await _commentService.AddAsync(taskId, userId, dto);
+
             return Ok(comment);
         }
 
@@ -48,7 +50,9 @@ namespace TaskManagement.Controllers
         public async Task<IActionResult> DeleteComment(int taskId, int commentId)
         {
             var userId = GetCurrentUserId();
-            var deleted = await _commentService.DeleteAsync(commentId, userId);
+            var isAdmin = User.IsInRole("Admin");
+
+            var deleted = await _commentService.DeleteAsync(commentId, userId, isAdmin);
 
             if (!deleted)
                 return NotFound(new { message = "Comment not found or unauthorized." });

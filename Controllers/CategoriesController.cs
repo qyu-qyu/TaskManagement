@@ -17,7 +17,7 @@ namespace TaskManagement.Controllers
             _categoryService = categoryService;
         }
 
-        // GET /api/categories
+        // Any authenticated user can view categories
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -25,8 +25,9 @@ namespace TaskManagement.Controllers
             return Ok(categories);
         }
 
-        // POST /api/categories
+        // Only Admin can create categories
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateCategoryDto dto)
         {
             if (!ModelState.IsValid)
@@ -36,8 +37,9 @@ namespace TaskManagement.Controllers
             return Ok(category);
         }
 
-        // DELETE /api/categories/{id}
+        // Only Admin can delete categories
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _categoryService.DeleteAsync(id);

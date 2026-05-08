@@ -1,4 +1,5 @@
-﻿using TaskManagement.Models;
+﻿using TaskManagement.DTOs;
+using TaskManagement.Models;
 using TaskManagement.Repositories;
 
 namespace TaskManagement.Services
@@ -12,32 +13,56 @@ namespace TaskManagement.Services
             _priorityRepository = priorityRepository;
         }
 
-        public async Task<List<Priority>> GetAllAsync()
+        public async Task<List<PriorityResponseDto>> GetAllAsync()
         {
-            return await _priorityRepository.GetAllAsync();
+            var priorities = await _priorityRepository.GetAllAsync();
+
+            return priorities.Select(p => new PriorityResponseDto
+            {
+                Id = p.Id,
+                Name = p.Name
+            }).ToList();
         }
 
-        public async Task<Priority?> GetByIdAsync(int id)
+        public async Task<PriorityResponseDto?> GetByIdAsync(int id)
         {
-            return await _priorityRepository.GetByIdAsync(id);
+            var priority = await _priorityRepository.GetByIdAsync(id);
+
+            if (priority == null)
+                return null;
+
+            return new PriorityResponseDto
+            {
+                Id = priority.Id,
+                Name = priority.Name
+            };
         }
 
-        public async Task<Priority> CreateAsync(Priority priority)
+        public async Task<PriorityResponseDto> CreateAsync(PriorityDto dto)
         {
+            var priority = new Priority
+            {
+                Name = dto.Name
+            };
+
             await _priorityRepository.AddAsync(priority);
             await _priorityRepository.SaveChangesAsync();
 
-            return priority;
+            return new PriorityResponseDto
+            {
+                Id = priority.Id,
+                Name = priority.Name
+            };
         }
 
-        public async Task<bool> UpdateAsync(int id, Priority updatedPriority)
+        public async Task<bool> UpdateAsync(int id, PriorityDto dto)
         {
             var priority = await _priorityRepository.GetByIdAsync(id);
 
             if (priority == null)
                 return false;
 
-            priority.Name = updatedPriority.Name;
+            priority.Name = dto.Name;
 
             _priorityRepository.Update(priority);
             await _priorityRepository.SaveChangesAsync();

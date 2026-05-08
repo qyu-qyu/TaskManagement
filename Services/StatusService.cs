@@ -1,4 +1,5 @@
-﻿using TaskManagement.Models;
+﻿using TaskManagement.DTOs;
+using TaskManagement.Models;
 using TaskManagement.Repositories;
 
 namespace TaskManagement.Services
@@ -12,32 +13,56 @@ namespace TaskManagement.Services
             _statusRepository = statusRepository;
         }
 
-        public async Task<List<Status>> GetAllAsync()
+        public async Task<List<StatusResponseDto>> GetAllAsync()
         {
-            return await _statusRepository.GetAllAsync();
+            var statuses = await _statusRepository.GetAllAsync();
+
+            return statuses.Select(s => new StatusResponseDto
+            {
+                Id = s.Id,
+                Name = s.Name
+            }).ToList();
         }
 
-        public async Task<Status?> GetByIdAsync(int id)
+        public async Task<StatusResponseDto?> GetByIdAsync(int id)
         {
-            return await _statusRepository.GetByIdAsync(id);
+            var status = await _statusRepository.GetByIdAsync(id);
+
+            if (status == null)
+                return null;
+
+            return new StatusResponseDto
+            {
+                Id = status.Id,
+                Name = status.Name
+            };
         }
 
-        public async Task<Status> CreateAsync(Status status)
+        public async Task<StatusResponseDto> CreateAsync(StatusDto dto)
         {
+            var status = new Status
+            {
+                Name = dto.Name
+            };
+
             await _statusRepository.AddAsync(status);
             await _statusRepository.SaveChangesAsync();
 
-            return status;
+            return new StatusResponseDto
+            {
+                Id = status.Id,
+                Name = status.Name
+            };
         }
 
-        public async Task<bool> UpdateAsync(int id, Status updatedStatus)
+        public async Task<bool> UpdateAsync(int id, StatusDto dto)
         {
             var status = await _statusRepository.GetByIdAsync(id);
 
             if (status == null)
                 return false;
 
-            status.Name = updatedStatus.Name;
+            status.Name = dto.Name;
 
             _statusRepository.Update(status);
             await _statusRepository.SaveChangesAsync();

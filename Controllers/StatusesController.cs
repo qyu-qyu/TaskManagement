@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TaskManagement.Models;
+using TaskManagement.DTOs;
 using TaskManagement.Services;
 
 namespace TaskManagement.Controllers
@@ -35,19 +35,25 @@ namespace TaskManagement.Controllers
             return Ok(status);
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> Create(Status status)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create([FromBody] StatusDto dto)
         {
-            var createdStatus = await _statusService.CreateAsync(status);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var createdStatus = await _statusService.CreateAsync(dto);
             return Ok(createdStatus);
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Status status)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Update(int id, [FromBody] StatusDto dto)
         {
-            var updated = await _statusService.UpdateAsync(id, status);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var updated = await _statusService.UpdateAsync(id, dto);
 
             if (!updated)
                 return NotFound(new { message = "Status not found." });
@@ -55,8 +61,8 @@ namespace TaskManagement.Controllers
             return Ok(new { message = "Status updated successfully." });
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _statusService.DeleteAsync(id);

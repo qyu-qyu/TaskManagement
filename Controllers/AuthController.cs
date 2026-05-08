@@ -24,7 +24,7 @@ namespace TaskManagement.Controllers
             _configuration = configuration;
         }
 
-
+        // POST: api/auth/register
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto registerDto)
         {
@@ -49,12 +49,13 @@ namespace TaskManagement.Controllers
                 return BadRequest(result.Errors);
             }
 
+            // Assign default role
             await _userManager.AddToRoleAsync(user, "User");
 
             return Ok("User registered successfully.");
         }
 
-
+        // POST: api/auth/login
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
@@ -72,7 +73,7 @@ namespace TaskManagement.Controllers
                 return Unauthorized("Invalid email or password.");
             }
 
-            var token = GenerateJwtToken(user);
+            var token = await GenerateJwtToken(user);
 
             return Ok(new
             {
@@ -81,20 +82,30 @@ namespace TaskManagement.Controllers
             });
         }
 
-
-        private string GenerateJwtToken(ApplicationUser user)
+        private async Task<string> GenerateJwtToken(ApplicationUser user)
         {
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.NameIdentifier, user.Id),
-        new Claim(ClaimTypes.Email, user.Email!),
-        new Claim(ClaimTypes.Name, user.UserName!)
-    };
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Email, user.Email!),
+                new Claim(ClaimTypes.Name, user.UserName!)
+            };
+
+            // Get user roles
+            var roles = await _userManager.GetRolesAsync(user);
+
+            // Add roles to claims
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
 
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var credentials = new SigningCredentials(
+                key,
+                SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],

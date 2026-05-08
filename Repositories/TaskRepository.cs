@@ -34,6 +34,7 @@ namespace TaskManagement.Repositories
                 query = query.Where(t => t.PriorityId == priorityId.Value);
 
             return await query
+                .OrderByDescending(t => t.CreatedAt)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -45,7 +46,8 @@ namespace TaskManagement.Repositories
                 .Include(t => t.Status)
                 .Include(t => t.Priority)
                 .Include(t => t.Category)
-                .FirstOrDefaultAsync(t => t.Id == id &&
+                .FirstOrDefaultAsync(t =>
+                    t.Id == id &&
                     (t.CreatedByUserId == userId || t.AssignedToUserId == userId));
         }
 
@@ -68,7 +70,9 @@ namespace TaskManagement.Repositories
                     (t.CreatedByUserId == userId || t.AssignedToUserId == userId) &&
                     t.DueDate.HasValue &&
                     t.DueDate.Value < DateTime.UtcNow &&
+                    t.Status != null &&
                     t.Status.Name != "Completed")
+                .OrderBy(t => t.DueDate)
                 .ToListAsync();
         }
 

@@ -16,6 +16,7 @@ namespace TaskManagement.Services
         public async Task<List<CommentResponseDto>> GetByTaskIdAsync(int taskId)
         {
             var comments = await _commentRepository.GetByTaskIdAsync(taskId);
+
             return comments.Select(c => new CommentResponseDto
             {
                 Id = c.Id,
@@ -49,14 +50,19 @@ namespace TaskManagement.Services
             };
         }
 
-        public async Task<bool> DeleteAsync(int commentId, string userId)
+        public async Task<bool> DeleteAsync(int commentId, string userId, bool isAdmin)
         {
             var comment = await _commentRepository.GetByIdAsync(commentId);
-            if (comment == null || comment.UserId != userId)
+
+            if (comment == null)
+                return false;
+
+            if (!isAdmin && comment.UserId != userId)
                 return false;
 
             _commentRepository.Delete(comment);
             await _commentRepository.SaveChangesAsync();
+
             return true;
         }
     }

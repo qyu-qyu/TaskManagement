@@ -1,13 +1,17 @@
-﻿using TaskManagement.Models;
+﻿using TaskManagement.DTOs;
 
 namespace TaskManagement.Services
 {
     public interface IPriorityService
     {
-        Task<List<Priority>> GetAllAsync();
-        Task<Priority?> GetByIdAsync(int id);
-        Task<Priority> CreateAsync(Priority priority);
-        Task<bool> UpdateAsync(int id, Priority priority);
+        Task<List<PriorityResponseDto>> GetAllAsync();
+
+        Task<PriorityResponseDto?> GetByIdAsync(int id);
+
+        Task<PriorityResponseDto> CreateAsync(PriorityDto dto);
+
+        Task<bool> UpdateAsync(int id, PriorityDto dto);
+
         Task<bool> DeleteAsync(int id);
     }
 }
